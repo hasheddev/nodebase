@@ -28,7 +28,7 @@ const config: Config = {
         "**/*.client.+(test|spec).[jt]s?(x)",
       ],
       moduleNameMapper: {
-        "^@/(.*)$": "<rootDir>/$1",
+        "^@/(.*)$": "<rootDir>/src/$1",
       },
       setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
       transform: {
@@ -45,7 +45,7 @@ const config: Config = {
       ],
       testPathIgnorePatterns: [".*\\.client\\.(test|spec)\\.[jt]s?(x)?$"],
       moduleNameMapper: {
-        "^@/(.*)$": "<rootDir>/$1",
+        "^@/(.*)$": "<rootDir>/src/$1",
       },
       setupFilesAfterEnv: ["<rootDir>/jest.server.setup.ts"],
       transform: {
