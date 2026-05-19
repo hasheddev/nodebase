@@ -1,4 +1,11 @@
 import { inngest } from "./client";
+import {createAnthropic} from '@ai-sdk/anthropic'
+import {createGoogleGenerativeAI} from '@ai-sdk/google'
+import {createOpenAI} from '@ai-sdk/openai'
+
+const anthorpic = createAnthropic()
+const google = createGoogleGenerativeAI()
+const openai = createOpenAI()
 
 export const helloWorld = inngest.createFunction(
   { id: "helloWorld" },

@@ -1,11 +1,18 @@
-import React from "react";
+import React, { forwardRef } from "react";
 
-interface IMockLink {
+interface IMockLink extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
   children?: React.ReactNode;
 }
 
-export const MockLink = ({ href, children }: IMockLink) => {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <a href={href}>{children}</a>;
-};
+export const MockLink = forwardRef<HTMLAnchorElement, IMockLink>(
+  ({ href, children, ...props }, ref) => {
+    return (
+      <a href={href} ref={ref} {...props}>
+        {children}
+      </a>
+    );
+  },
+);
+
+MockLink.displayName = "MockLink";

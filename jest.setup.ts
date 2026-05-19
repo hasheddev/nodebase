@@ -22,3 +22,5 @@ jest.mock("@/lib/auth-client", () => ({
   authClient: mockAuthClient,
 }));
 jest.mock("next/image", () => MockImage);
+
+// jest.setup.ts

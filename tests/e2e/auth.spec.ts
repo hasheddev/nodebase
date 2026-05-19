@@ -16,14 +16,13 @@ test.describe("Auth System Flow", () => {
   });
 
   test("Full Auth Lifecycle: Register -> Logout -> Login", async ({ page }) => {
-    await page.goto("/signup");
+    //redirects unauthorized users to login
+    await page.goto("/");
+    await page.waitForURL("**/login", { timeout: 10000 });
 
-    //layout link test
-    const logoLink = page.getByRole("link", { name: /Nodebase/i });
-    await logoLink.click();
-    await page.waitForURL("/", { timeout: 10000 });
-
-    await page.goto("/signup");
+    //Signup
+    await page.getByRole("link", { name: /Sign up/i }).click();
+    await page.waitForURL("**/signup", { timeout: 10000 });
     await page.getByLabel("Name").fill(user.name);
     await page.getByLabel("Email").fill(user.email);
     await page.getByLabel("Password", { exact: true }).fill(user.password);
@@ -31,19 +30,27 @@ test.describe("Auth System Flow", () => {
     await page.getByRole("button", { name: /Register/i }).click();
 
     //redirects to home after registeration succeeds
-    await page.waitForURL("/", { timeout: 10000 });
+    await page.waitForURL("**/workflows", { timeout: 10000 });
+    //homepage logo
+    await expect(page.getByRole("link", { name: /Nodebase/i })).toBeVisible();
+    const workflowLink = page.getByRole("link", { name: /Workflows/i });
+    await expect(workflowLink).toHaveAttribute("data-active", "true");
 
     //logout
+    // We clear cookies to simulate logout (or you could click your Sign Out button)
     await page.context().clearCookies();
+    await page.reload();
 
-    //login test
-    await page.goto("/login");
+    //redirects to logout when user is npt authenticated
+    await page.waitForURL("**/login", { timeout: 10000 });
     await page.getByLabel("Email").fill(user.email);
     await page.getByLabel("Password").fill(user.password);
     const loginButton = page.getByRole("button", { name: /Login/i });
     await Promise.all([
       loginButton.click(),
-      page.waitForURL("/", { timeout: 10000 }),
+      page.waitForURL("**/workflows", { timeout: 10000 }),
     ]);
+    //homepage logo
+    await expect(page.getByRole("link", { name: /Nodebase/i })).toBeVisible();
   });
 });
