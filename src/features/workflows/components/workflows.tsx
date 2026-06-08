@@ -1,10 +1,11 @@
 'use client'
 
-import { EntityContainer, EntityHeader } from "@/components/entity-components";
+import { EntityContainer, EntityHeader, EntityPagination, EntitySearch } from "@/components/entity-components";
 import { useCreateWorkflows, useSuspenseWorkflows } from "../hooks/use-workflows"
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { router } from "better-auth/api";
 import { useRouter } from "next/navigation";
+import { useWorkflowsParams } from "../hooks/use-workflow-params";
+import { useEntitySearch } from "@/hooks/use-entity-search";
 
 export const WorkFlowsList = () => {
     const workflows = useSuspenseWorkflows();
@@ -24,7 +25,7 @@ export const WorkFlowsHeader = ({ disabled }: { disabled?: boolean }) => {
     const handleCreate = () => {
         createWorkflows.mutate(undefined, {
             onSuccess: (data) => {
-                router.push(`/wprkflows/${data.id}`)
+                router.push(`/workflows/${data.id}`)
             },
             onError: (error) => {
                 handleError(error)
@@ -46,12 +47,31 @@ export const WorkFlowsHeader = ({ disabled }: { disabled?: boolean }) => {
     )
 }
 
+export const WorkflowsSearch = () => {
+    const [params, setParams] = useWorkflowsParams()
+
+    const { searchValue, onSearchChage } = useEntitySearch({ params, setParams })
+    return (<EntitySearch value={searchValue} onChange={onSearchChage} placeholder="Search workflows" />)
+}
+
+export const WorkflowsPagination = () => {
+    const workflow = useSuspenseWorkflows()
+    const [params, setParams] = useWorkflowsParams()
+
+    return (<EntityPagination
+        disabled={workflow.isFetching}
+        totalPages={workflow.data.totalPages}
+        page={workflow.data.page}
+        onPageChange={(page) => setParams({ ...params, page })}
+    />)
+}
+
 export const WorkFlowsContainer = ({ children }: { children: React.ReactNode }) => {
     return (
         <EntityContainer
             header={<WorkFlowsHeader />}
-            search={<></>}
-            pagination={<></>}
+            search={<WorkflowsSearch />}
+            pagination={<WorkflowsPagination />}
         >
             {children}
         </EntityContainer>

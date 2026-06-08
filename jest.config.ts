@@ -34,6 +34,9 @@ const config: Config = {
       transform: {
         "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
       },
+      transformIgnorePatterns: [
+        "node_modules/(?!(@faker-js/faker|better-auth)/)",
+      ],
     },
     {
       displayName: "server",
@@ -51,6 +54,9 @@ const config: Config = {
       transform: {
         "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
       },
+      transformIgnorePatterns: [
+        "node_modules/(?!(@faker-js/faker|better-auth)/)",
+      ],
     },
   ],
 };
