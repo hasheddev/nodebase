@@ -24,7 +24,7 @@ import {
 import Link from "next/link";
 
 import { authClient } from "@/lib/auth-client";
-import { useHasActiveSuvsription } from "@/features/subscriptions/hooks/use-subscription";
+import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
 
 const menuItems = [
     {
@@ -51,7 +51,7 @@ const menuItems = [
 export const AppSidebar = () => {
     const router = useRouter();
     const pathName = usePathname();
-    const { hasActiveSubscription, isLoading } = useHasActiveSuvsription()
+    const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
     const isActive = (url: string) => {
         return url === "/" ? pathName === "/" : pathName.startsWith(url);
     };

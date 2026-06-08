@@ -12,7 +12,7 @@ const useSubscription = () => {
   });
 };
 
-export const useHasActiveSuvsription = () => {
+export const useHasActiveSubscription = () => {
   const { data: customerState, isLoading, ...rest } = useSubscription();
   const hasActiveSubscription =
     customerState?.activeSubscriptions &&
