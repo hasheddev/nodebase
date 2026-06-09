@@ -1,18 +1,16 @@
-"use client"
+"use client";
 
-import { Updater } from "@tanstack/react-query";
+import { authClient } from "@/lib/auth-client";
 import {
     AlertDialog,
     AlertDialogAction,
     AlertDialogCancel,
     AlertDialogContent,
     AlertDialogDescription,
-    AlertDialogHeader,
     AlertDialogFooter,
-    AlertDialogTitle
-} from "./ui/alert-dialog"
-
-import { authClient } from "@/lib/auth-client"
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "./ui/alert-dialog";
 
 interface UpgradeModalProps {
     open: boolean;
@@ -26,14 +24,19 @@ export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Upgrade to Pro</AlertDialogTitle>
                     <AlertDialogDescription>
-                        You need an active subscription to perform this action. Upgrade to pro to unlock all features
+                        You need an active subscription to perform this action. Upgrade to
+                        pro to unlock all features
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => authClient.checkout({ slug: "pro" })}>Upgrade Now</AlertDialogAction>
+                    <AlertDialogAction
+                        onClick={() => authClient.checkout({ slug: "pro" })}
+                    >
+                        Upgrade Now
+                    </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-    )
-}
+    );
+};

@@ -1,5 +1,8 @@
-'use client'
+"use client";
 
+import { formatDistanceToNow } from "date-fns";
+import { WorkflowIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
     EmptyView,
     EntityContainer,
@@ -9,21 +12,22 @@ import {
     EntityPagination,
     EntitySearch,
     ErrorView,
-    LoadingView
+    LoadingView,
 } from "@/components/entity-components";
-import { useCreateWorkflows, useRemoveWorkflows, useSuspenseWorkflows } from "../hooks/use-workflows"
-import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
-import { useRouter } from "next/navigation";
-import { useWorkflowsParams } from "../hooks/use-workflow-params";
-import { useEntitySearch } from "@/hooks/use-entity-search";
 import type { Workflow } from "@/generated/prisma";
-import { WorkflowIcon } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { useEntitySearch } from "@/hooks/use-entity-search";
+import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
+import { useWorkflowsParams } from "../hooks/use-workflow-params";
+import {
+    useCreateWorkflow,
+    useRemoveWorkflow,
+    useSuspenseWorkflows,
+} from "../hooks/use-workflows";
 
 export const WorkFlowsList = () => {
     const workflows = useSuspenseWorkflows();
     if (workflows.data.items.length === 0) {
-        return <WorkflowsEmpty />
+        return <WorkflowsEmpty />;
     }
 
     return (
@@ -33,24 +37,24 @@ export const WorkFlowsList = () => {
             renderItem={(workflow) => <WorkflowItem data={workflow} />}
             emptyView={<WorkflowsEmpty />}
         />
-    )
-}
+    );
+};
 
 export const WorkFlowsHeader = ({ disabled }: { disabled?: boolean }) => {
-    const createWorkflows = useCreateWorkflows()
-    const router = useRouter()
-    const { handleError, modal } = useUpgradeModal()
+    const createWorkflows = useCreateWorkflow();
+    const router = useRouter();
+    const { handleError, modal } = useUpgradeModal();
 
     const handleCreate = () => {
         createWorkflows.mutate(undefined, {
             onSuccess: (data) => {
-                router.push(`/workflows/${data.id}`)
+                router.push(`/workflows/${data.id}`);
             },
             onError: (error) => {
-                handleError(error)
-            }
-        })
-    }
+                handleError(error);
+            },
+        });
+    };
     return (
         <>
             {modal}
@@ -63,25 +67,25 @@ export const WorkFlowsHeader = ({ disabled }: { disabled?: boolean }) => {
                 isCreating={createWorkflows.isPending}
             />
         </>
-    )
-}
+    );
+};
 
 export const WorkflowsSearch = () => {
-    const [params, setParams] = useWorkflowsParams()
+    const [params, setParams] = useWorkflowsParams();
 
-    const { searchValue, onSearchChage } = useEntitySearch({ params, setParams })
+    const { searchValue, onSearchChage } = useEntitySearch({ params, setParams });
     return (
         <EntitySearch
             value={searchValue}
             onChange={onSearchChage}
             placeholder="Search workflows"
         />
-    )
-}
+    );
+};
 
 export const WorkflowsPagination = () => {
-    const workflow = useSuspenseWorkflows()
-    const [params, setParams] = useWorkflowsParams()
+    const workflow = useSuspenseWorkflows();
+    const [params, setParams] = useWorkflowsParams();
 
     return (
         <EntityPagination
@@ -89,10 +93,15 @@ export const WorkflowsPagination = () => {
             totalPages={workflow.data.totalPages}
             page={workflow.data.page}
             onPageChange={(page) => setParams({ ...params, page })}
-        />)
-}
+        />
+    );
+};
 
-export const WorkFlowsContainer = ({ children }: { children: React.ReactNode }) => {
+export const WorkFlowsContainer = ({
+    children,
+}: {
+    children: React.ReactNode;
+}) => {
     return (
         <EntityContainer
             header={<WorkFlowsHeader />}
@@ -101,32 +110,32 @@ export const WorkFlowsContainer = ({ children }: { children: React.ReactNode }) 
         >
             {children}
         </EntityContainer>
-    )
-}
+    );
+};
 
 export const WorkflowsLoading = () => {
-    return <LoadingView message="Loading workflows..." />
-}
+    return <LoadingView message="Loading workflows..." />;
+};
 
 export const WorkflowsError = () => {
-    return <ErrorView message="Error Loading workflows" />
-}
+    return <ErrorView message="Error Loading workflows" />;
+};
 
 export const WorkflowsEmpty = () => {
-    const createWorkflows = useCreateWorkflows()
-    const { handleError, modal } = useUpgradeModal()
+    const createWorkflows = useCreateWorkflow();
+    const { handleError, modal } = useUpgradeModal();
+    const router = useRouter();
 
     const handleCreate = () => {
-        const router = useRouter()
         createWorkflows.mutate(undefined, {
             onError: (error) => {
-                handleError(error)
+                handleError(error);
             },
             onSuccess: (data) => {
-                router.push(`/workflows/${data.id}`)
-            }
-        })
-    }
+                router.push(`/workflows/${data.id}`);
+            },
+        });
+    };
 
     return (
         <>
@@ -136,16 +145,15 @@ export const WorkflowsEmpty = () => {
                 onNew={handleCreate}
             />
         </>
-    )
-}
+    );
+};
 
 export const WorkflowItem = ({ data }: { data: Workflow }) => {
-
-    const removeWorkflow = useRemoveWorkflows()
+    const removeWorkflow = useRemoveWorkflow();
 
     const handleRemove = () => {
-        removeWorkflow.mutate({ id: data.id })
-    }
+        removeWorkflow.mutate({ id: data.id });
+    };
 
     return (
         <EntityItem
@@ -166,5 +174,5 @@ export const WorkflowItem = ({ data }: { data: Workflow }) => {
             onRemove={handleRemove}
             isRemoving={removeWorkflow.isPending}
         />
-    )
-}
+    );
+};
