@@ -12,10 +12,12 @@ import {
     MiniMap,
     type Node,
     type NodeChange,
+    Panel,
     ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { useCallback, useState } from "react";
+import { AddNodeButton } from "@/components/add-node-button";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import { nodeComponents } from "@/config/node-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
@@ -65,6 +67,9 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
                 <Background />
                 <Controls />
                 <MiniMap />
+                <Panel position="top-right">
+                    <AddNodeButton />
+                </Panel>
             </ReactFlow>
         </div>
     );
