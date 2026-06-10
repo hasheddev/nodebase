@@ -16,11 +16,13 @@ import {
     ReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useSetAtom } from "jotai";
 import { useCallback, useState } from "react";
-import { AddNodeButton } from "@/components/add-node-button";
 import { ErrorView, LoadingView } from "@/components/entity-components";
 import { nodeComponents } from "@/config/node-components";
+import { AddNodeButton } from "@/features/editor/components/add-node-button";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflows";
+import { editorAtom } from "../store/atoms";
 
 export const EditorLoading = () => <LoadingView message="Loading editor..." />;
 
@@ -28,6 +30,8 @@ export const EditorError = () => <ErrorView message="Error loading editor" />;
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
     const { data: workflow } = useSuspenseWorkflow(workflowId);
+
+    const setEditor = useSetAtom(editorAtom);
 
     const [nodes, setNodes] = useState<Node[]>(workflow.nodes);
     const [edges, setEdges] = useState<Edge[]>(workflow.edges);
@@ -60,6 +64,13 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
                 onConnect={onConnect}
                 nodeTypes={nodeComponents}
                 fitView
+                onInit={setEditor}
+            // snapGrid={[10, 10]}
+            // snapToGrid
+            // panOnScroll
+            // panOnDrag={false}
+            // selectionOnDrag
+            //allows for backspace delete
             // proOptions={{
             //     hideAttribution: true
             // }}
