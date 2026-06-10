@@ -7,7 +7,7 @@ import { Button } from "./ui/button"
 
 interface WorkflowNodeProps {
     children: ReactNode;
-    showToolBar: boolean;
+    showToolBar?: boolean;
     onDelete?: () => void;
     onSettings?: () => void;
     name?: string;
