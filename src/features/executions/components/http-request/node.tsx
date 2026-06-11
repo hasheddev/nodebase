@@ -4,13 +4,12 @@ import { type Node, type NodeProps, useReactFlow } from "@xyflow/react";
 import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
 import { BaseExecutionNode } from "../base-execution-node";
-import { type FormSchema, HttpRequestDialog } from "./dialogue";
+import { HttpRequestDialog, type HttpRequestFormValues } from "./dialogue";
 
 type HttpRequestNodeData = {
     endpoint?: string;
     method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
     body?: string;
-    [key: string]: unknown;
 };
 
 export type HttpRequestNodeType = Node<HttpRequestNodeData>;
@@ -25,7 +24,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
         ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
         : "Not configured";
 
-    const handleSumbit = (values: FormSchema) => {
+    const handleSumbit = (values: HttpRequestFormValues) => {
         setNodes((nodes) =>
             nodes.map((node) => {
                 if (node.id === props.id) {
@@ -33,9 +32,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                         ...node,
                         data: {
                             ...node.data,
-                            endpoint: values.endpoint,
-                            method: values.method,
-                            body: values.method,
+                            ...values,
                         },
                     };
                 }
@@ -54,9 +51,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
                 open={open}
                 onOpenChange={setOpen}
                 onSubmit={handleSumbit}
-                defaultEndpoint={nodeData.endpoint}
-                defaultMethod={nodeData.method}
-                defaultBody={nodeData.body}
+                defaultValues={nodeData}
             />
             <BaseExecutionNode
                 {...props}

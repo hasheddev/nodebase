@@ -1,17 +1,39 @@
+import { NonRetriableError } from "inngest";
+import { getExecutor } from "@/features/executions/lib/executor-registery";
+import type { NodeType } from "@/generated/prisma";
+import prisma from "@/lib/db";
 import { inngest } from "./client";
-import {createAnthropic} from '@ai-sdk/anthropic'
-import {createGoogleGenerativeAI} from '@ai-sdk/google'
-import {createOpenAI} from '@ai-sdk/openai'
+import { topologicalSort } from "./utils";
 
-const anthorpic = createAnthropic()
-const google = createGoogleGenerativeAI()
-const openai = createOpenAI()
-
-export const helloWorld = inngest.createFunction(
-  { id: "helloWorld" },
-  { event: "test/hello.world" },
+export const executeWorkflow = inngest.createFunction(
+  { id: "execute-workflow" },
+  { event: "workflows/execute-workflow" },
   async ({ event, step }) => {
-    await step.sleep("wait-a-moment", "1s");
-    return { message: `Hello ${event.data.email}` };
+    const worfklowId = event.data.workflowId;
+    if (!worfklowId) {
+      throw new NonRetriableError("Workflow Id is Missing");
+    }
+
+    const sortedNodes = await step.run("prepare-workflow", async () => {
+      const { nodes, connections } = await prisma.workflow.findUniqueOrThrow({
+        where: { id: worfklowId },
+        include: { nodes: true, connections: true },
+      });
+      return topologicalSort(nodes, connections);
+    });
+
+    let context = event.data.initialData || {};
+
+    for (const node of sortedNodes) {
+      const executor = getExecutor(node.type as NodeType);
+
+      context = await executor({
+        data: node.data as Record<string, unknown>,
+        nodeId: node.id,
+        context,
+        step,
+      });
+    }
+    return { sortedNodes };
   },
 );
