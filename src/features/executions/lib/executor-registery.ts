@@ -13,7 +13,7 @@ export const initialExecutor: NodeExecutor<InitialData> = async ({
   return result;
 };
 
-export const executorRegistery: Record<NodeType, NodeExecutor> = {
+export const executorRegistery: Record<NodeType, NodeExecutor<any>> = {
   [NodeType.MANUAL_TRIGGER]: manualTriggerExecutor,
   [NodeType.INITIAL]: initialExecutor,
   [NodeType.HTTP_REQUEST]: httpRequestExecutor,
