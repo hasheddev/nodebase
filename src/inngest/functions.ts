@@ -1,13 +1,18 @@
 import { NonRetriableError } from "inngest";
 import { getExecutor } from "@/features/executions/lib/executor-registery";
 import prisma from "@/lib/db";
+import { httpRequestChannel } from "./channels/http-request";
+import { manualTriggerChannel } from "./channels/manual-trigger";
 import { inngest } from "./client";
 import { topologicalSort } from "./utils";
 
 export const executeWorkflow = inngest.createFunction(
   { id: "execute-workflow" },
-  { event: "workflows/execute-workflow" },
-  async ({ event, step }) => {
+  {
+    event: "workflows/execute-workflow",
+    channels: [httpRequestChannel(), manualTriggerChannel()],
+  },
+  async ({ event, step, publish }) => {
     const worfklowId = event.data.workflowId;
     if (!worfklowId) {
       throw new NonRetriableError("Workflow Id is Missing");
@@ -31,6 +36,7 @@ export const executeWorkflow = inngest.createFunction(
         nodeId: node.id,
         context,
         step,
+        publish,
       });
     }
     return { sortedNodes };

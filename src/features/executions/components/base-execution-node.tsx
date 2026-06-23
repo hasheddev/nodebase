@@ -6,7 +6,10 @@ import Image from "next/image";
 import { memo, type ReactNode } from "react";
 import { BaseHandle } from "@/components/react-flow/base-handle";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
-import { type NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
+import {
+    type NodeStatus,
+    NodeStatusIndicator,
+} from "@/components/react-flow/node-status-indicator";
 import { WorkflowNode } from "@/components/workflow-node";
 
 interface BaseExecutionNodeProps extends NodeProps {
@@ -27,16 +30,16 @@ export const BaseExecutionNode = memo(
         description,
         children,
         status = "initial",
-        onDoubleClick,
         onSettings,
+        onDoubleClick,
     }: BaseExecutionNodeProps) => {
-        const { setEdges, setNodes } = useReactFlow();
-
+        const { setNodes, setEdges } = useReactFlow();
         const handleDelete = () => {
             setNodes((currentNodes) => {
                 const updatedNodes = currentNodes.filter((node) => node.id !== id);
                 return updatedNodes;
             });
+
             setEdges((currentEdges) => {
                 const updatedEdges = currentEdges.filter(
                     (edge) => edge.source !== id && edge.target !== id,
@@ -61,8 +64,16 @@ export const BaseExecutionNode = memo(
                                 <Icon className="size-4 text-muted-foreground" />
                             )}
                             {children}
-                            <BaseHandle id="target-1" type="target" position={Position.Left} />
-                            <BaseHandle id="source-1" type="source" position={Position.Right} />
+                            <BaseHandle
+                                id="target-1"
+                                type="target"
+                                position={Position.Left}
+                            />
+                            <BaseHandle
+                                id="source-1"
+                                type="source"
+                                position={Position.Right}
+                            />
                         </BaseNodeContent>
                     </BaseNode>
                 </NodeStatusIndicator>

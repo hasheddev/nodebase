@@ -6,7 +6,10 @@ import Image from "next/image";
 import { memo, type ReactNode } from "react";
 import { BaseHandle } from "@/components/react-flow/base-handle";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
-import { type NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
+import {
+    type NodeStatus,
+    NodeStatusIndicator,
+} from "@/components/react-flow/node-status-indicator";
 import { WorkflowNode } from "@/components/workflow-node";
 
 interface BaseTriggerNodeProps extends NodeProps {
@@ -27,16 +30,16 @@ export const BaseTriggerNode = memo(
         description,
         children,
         status = "initial",
-        onDoubleClick,
         onSettings,
+        onDoubleClick,
     }: BaseTriggerNodeProps) => {
-        const { setEdges, setNodes } = useReactFlow();
-
+        const { setNodes, setEdges } = useReactFlow();
         const handleDelete = () => {
             setNodes((currentNodes) => {
                 const updatedNodes = currentNodes.filter((node) => node.id !== id);
                 return updatedNodes;
             });
+
             setEdges((currentEdges) => {
                 const updatedEdges = currentEdges.filter(
                     (edge) => edge.source !== id && edge.target !== id,
