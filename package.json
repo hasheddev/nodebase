@@ -22,7 +22,8 @@
         "test:coverage:server": "jest --coverage --selectProjects server",
         "test:server": "jest --selectProjects server",
         "inngest:dev": "inngest-cli dev",
-        "dev:all": "mprocs"
+        "dev:all": "mprocs",
+        "ngrok:dev": "ngrok http --url=earmuff-unfeeling-siberian.ngrok-free.dev 3000"
     },
     "dependencies": {
         "@ai-sdk/anthropic": "^2.0.77",

@@ -35,7 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 const formSchema = z.object({
     variableName: z.string().min(1, { message: "Variable name is required" })
         .regex(/^[A-Za-z_$][A-Za-z0-9_$]*$/, { message: "Variable name must start with letters or underscores and must contain only letters, numbers or underscores" }),
-    endpoint: z.url({ message: "please enter a valid url method" }),
+    endpoint: z.string().min(3, { message: "please enter a valid url method" }),
     method: z.enum(["GET", "POST", "PUT", "PATCH", "DELETE"]),
     body: z.string().optional(),
 });
