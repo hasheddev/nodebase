@@ -2,7 +2,10 @@ import { googleFormTriggerExecutor } from "@/features/triggers/components/google
 import { manualTriggerExecutor } from "@/features/triggers/components/manual-trigger/executor";
 import { stripeTriggerExecutor } from "@/features/triggers/components/stripe-trigger/executor";
 import { NodeType } from "@/generated/prisma";
+import { anthropicRequestExecutor } from "../components/anthropic/executor";
+import { geminiRequestExecutor } from "../components/gemini/executor";
 import { httpRequestExecutor } from "../components/http-request/executor";
+import { openAiRequestExecutor } from "../components/openai/executor";
 import type { NodeExecutor } from "../types";
 
 type InitialData = Record<string, unknown>;
@@ -21,6 +24,9 @@ export const executorRegistery: Record<NodeType, NodeExecutor<any>> = {
   [NodeType.HTTP_REQUEST]: httpRequestExecutor,
   [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor,
   [NodeType.STRIPE_TRIGGER]: stripeTriggerExecutor,
+  [NodeType.GEMINI]: geminiRequestExecutor,
+  [NodeType.ANTHROPIC]: anthropicRequestExecutor,
+  [NodeType.OPENAI]: openAiRequestExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {
