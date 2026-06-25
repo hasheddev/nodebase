@@ -73,11 +73,11 @@ export const WorkFlowsHeader = ({ disabled }: { disabled?: boolean }) => {
 export const WorkflowsSearch = () => {
     const [params, setParams] = useWorkflowsParams();
 
-    const { searchValue, onSearchChage } = useEntitySearch({ params, setParams });
+    const { searchValue, onSearchChange } = useEntitySearch({ params, setParams });
     return (
         <EntitySearch
             value={searchValue}
-            onChange={onSearchChage}
+            onChange={onSearchChange}
             placeholder="Search workflows"
         />
     );

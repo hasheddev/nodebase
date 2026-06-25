@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import { useRouter, usePathname } from "next/navigation";
 import {
     CreditCardIcon,
     FolderOpenIcon,
@@ -10,6 +8,12 @@ import {
     LogOutIcon,
     StarIcon,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
+
+import { authClient } from "@/lib/auth-client";
 import {
     Sidebar,
     SidebarContent,
@@ -21,10 +25,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from "./ui/sidebar";
-import Link from "next/link";
-
-import { authClient } from "@/lib/auth-client";
-import { useHasActiveSubscription } from "@/features/subscriptions/hooks/use-subscription";
 
 const menuItems = [
     {
@@ -51,7 +51,7 @@ const menuItems = [
 export const AppSidebar = () => {
     const router = useRouter();
     const pathName = usePathname();
-    const { hasActiveSubscription, isLoading } = useHasActiveSubscription()
+    const { hasActiveSubscription, isLoading } = useHasActiveSubscription();
     const isActive = (url: string) => {
         return url === "/" ? pathName === "/" : pathName.startsWith(url);
     };
@@ -115,7 +115,7 @@ export const AppSidebar = () => {
                             <SidebarMenuButton
                                 tooltip="Upgrade to pro"
                                 className="gap-x-4 h-10 px-4"
-                                onClick={() => authClient.checkout({ slug: 'pro' })}
+                                onClick={() => authClient.checkout({ slug: "pro" })}
                             >
                                 <StarIcon className="h-4-w-4" />
                                 <span>Upgrade to Pro</span>

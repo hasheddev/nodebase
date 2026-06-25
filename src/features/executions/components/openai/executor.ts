@@ -4,11 +4,13 @@ import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { openaiTriggerChannel } from "@/inngest/channels/openai-channel";
+import prisma from "@/lib/db";
 
 type OpenAiRequestData = {
   variableName?: string;
   systemPrompt?: string;
   userPrompt?: string;
+  credentialId?: string;
 };
 
 //to use send {{json todo.httpResponse.data}} where data is an object and todo is the varaible name.
@@ -33,7 +35,12 @@ export const openAiRequestExecutor: NodeExecutor<OpenAiRequestData> = async ({
     }),
   );
 
-  const { userPrompt: input, variableName, systemPrompt: prompt } = data;
+  const {
+    credentialId,
+    userPrompt: input,
+    variableName,
+    systemPrompt: prompt,
+  } = data;
 
   if (!input || typeof input !== "string") {
     await publish(
@@ -44,6 +51,17 @@ export const openAiRequestExecutor: NodeExecutor<OpenAiRequestData> = async ({
     );
     throw new NonRetriableError(
       `OpenAi node(${nodeId}): userPrompt not configured`,
+    );
+  }
+  if (!credentialId || typeof credentialId !== "string") {
+    await publish(
+      openaiTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(
+      `OpenAI node(${nodeId}): credential not configured`,
     );
   }
   if (!variableName || typeof variableName !== "string") {
@@ -58,13 +76,31 @@ export const openAiRequestExecutor: NodeExecutor<OpenAiRequestData> = async ({
     );
   }
 
+  const credential = await step.run("get-credential", async () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: credentialId,
+      },
+    });
+  });
+
+  if (!credential) {
+    await publish(
+      openaiTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(`OpenAI node(${nodeId}): credential not found`);
+  }
+
   const systemPrompt = prompt
     ? Handlebars.compile(prompt)(context)
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(input)(context);
-  const credential = process.env.OPENAI_API_KEY || "";
+
   const openai = createOpenAI({
-    apiKey: credential,
+    apiKey: credential.value,
   });
 
   try {

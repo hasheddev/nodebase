@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -23,14 +24,16 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-// import {
-//     Select,
-//     SelectContent,
-//     SelectItem,
-//     SelectTrigger,
-//     SelectValue,
-// } from "@/components/ui/select";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useCredentialsByType } from "@/features/credentials/hooks/use-credentials";
+import { CredentialType } from "@/generated/prisma";
 
 // export const AVAILABLE_MODELS = [
 //     // --- High-Volume Stable Production (Gemini 2.5) ---
@@ -56,6 +59,7 @@ const formSchema = z.object({
             message:
                 "Variable name must start with letters or underscores and must contain only letters, numbers or underscores",
         }),
+    credentialId: z.string().min(2, "Credential is required"),
     systemPrompt: z.string().optional(),
     userPrompt: z.string().min(2, "user prompt is required"),
 });
@@ -75,9 +79,13 @@ export const GeminiDialog = ({
     onSubmit,
     defaultValues = {},
 }: Props) => {
+    const { data: credentials, isLoading: isCredentialsLoading } =
+        useCredentialsByType(CredentialType.GEMINI);
+
     const form = useForm<GeminiFormValues>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            credentialId: defaultValues.credentialId || "",
             variableName: defaultValues.variableName || "",
             systemPrompt: defaultValues.systemPrompt || "",
             userPrompt: defaultValues.userPrompt || "",
@@ -87,6 +95,7 @@ export const GeminiDialog = ({
     useEffect(() => {
         if (open) {
             form.reset({
+                credentialId: defaultValues.credentialId || "",
                 variableName: defaultValues.variableName || "",
                 systemPrompt: defaultValues.systemPrompt || "",
                 userPrompt: defaultValues.userPrompt || "",
@@ -104,7 +113,6 @@ export const GeminiDialog = ({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-md w-full max-h-[90vh] flex flex-col p-0">
-
                 <DialogHeader className="p-6 pb-2">
                     <DialogTitle>Gemini</DialogTitle>
                     <DialogDescription>Gemini Configuration</DialogDescription>
@@ -136,6 +144,44 @@ export const GeminiDialog = ({
 
                             <FormField
                                 control={form.control}
+                                name="credentialId"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Gemini Credential</FormLabel>
+                                        <Select
+                                            onValueChange={field.onChange}
+                                            defaultValue={field.value}
+                                            value={field.value}
+                                            disabled={isCredentialsLoading || credentials?.length === 0}
+                                        >
+                                            <FormControl>
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder="select a type" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {credentials?.map((cred) => (
+                                                    <SelectItem key={cred.id} value={cred.id}>
+                                                        <div className="flex items-center gap-2">
+                                                            <Image
+                                                                src={"/logos/gemini.svg"}
+                                                                alt={"Gemini"}
+                                                                width={16}
+                                                                height={16}
+                                                            />
+                                                            {cred.name}
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
                                 name="systemPrompt"
                                 render={({ field }) => (
                                     <FormItem>
@@ -149,7 +195,8 @@ export const GeminiDialog = ({
                                         </FormControl>
                                         <FormDescription>
                                             Sets the behaviour of the assistant. Use {"{{variables}}"}{" "}
-                                            for simple values or {"{{json variables}}"} to stringify objects
+                                            for simple values or {"{{json variables}}"} to stringify
+                                            objects
                                         </FormDescription>
                                         <FormMessage />
                                     </FormItem>
@@ -171,7 +218,8 @@ export const GeminiDialog = ({
                                         </FormControl>
                                         <FormDescription>
                                             The prompt to send to the AI. Use {"{{variables}}"} for
-                                            simple values or {"{{json variables}}"} to stringify objects
+                                            simple values or {"{{json variables}}"} to stringify
+                                            objects
                                         </FormDescription>
                                         <FormMessage />
                                     </FormItem>

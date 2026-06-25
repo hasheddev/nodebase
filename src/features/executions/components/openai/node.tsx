@@ -12,6 +12,7 @@ type OpenAiNodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
+    credentialId?: string;
 };
 
 export type OpenAiNodeType = Node<OpenAiNodeData>;

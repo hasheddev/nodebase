@@ -4,11 +4,13 @@ import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { anthropicTriggerChannel } from "@/inngest/channels/anthropic-channel";
+import prisma from "@/lib/db";
 
 type AnthropicRequestData = {
   variableName?: string;
   systemPrompt?: string;
   userPrompt?: string;
+  credentialId?: string;
 };
 
 //to use send {{json todo.httpResponse.data}} where data is an object and todo is the varaible name.
@@ -29,7 +31,12 @@ export const anthropicRequestExecutor: NodeExecutor<
     }),
   );
 
-  const { userPrompt: input, variableName, systemPrompt: prompt } = data;
+  const {
+    credentialId,
+    userPrompt: input,
+    variableName,
+    systemPrompt: prompt,
+  } = data;
 
   if (!input || typeof input !== "string") {
     await publish(
@@ -40,6 +47,17 @@ export const anthropicRequestExecutor: NodeExecutor<
     );
     throw new NonRetriableError(
       `Anthropic node(${nodeId}): userPrompt not configured`,
+    );
+  }
+  if (!credentialId || typeof credentialId !== "string") {
+    await publish(
+      anthropicTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(
+      `Anthropic node(${nodeId}): credential not configured`,
     );
   }
   if (!variableName || typeof variableName !== "string") {
@@ -54,13 +72,32 @@ export const anthropicRequestExecutor: NodeExecutor<
     );
   }
 
+  const credential = await step.run("get-credential", async () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: credentialId,
+      },
+    });
+  });
+
+  if (!credential) {
+    await publish(
+      anthropicTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(
+      `Anthropic node(${nodeId}): credential not found`,
+    );
+  }
+
   const systemPrompt = prompt
     ? Handlebars.compile(prompt)(context)
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(input)(context);
-  const credential = process.env.ANTHROPIC_API_KEY || "";
   const anthropic = createAnthropic({
-    apiKey: credential,
+    apiKey: credential.value,
   });
 
   try {

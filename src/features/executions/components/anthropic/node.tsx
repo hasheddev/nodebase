@@ -12,6 +12,7 @@ type AnthropicNodeData = {
     variableName?: string;
     systemPrompt?: string;
     userPrompt?: string;
+    credentialId?: string;
 };
 
 export type AnthropicNodeType = Node<AnthropicNodeData>;

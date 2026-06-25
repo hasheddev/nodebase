@@ -25,6 +25,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   workflows     Workflow[]
+  credentials   Credential[]
 
   @@unique([email])
   @@map("user")
@@ -91,6 +92,24 @@ model Workflow {
     @@map("workflow")
 }
 
+enum CredentialType {
+    OPENAI
+    ANTHROPIC
+    GEMINI
+}
+
+model Credential {
+    id String @id @default(cuid())
+    name String
+    value String
+    type CredentialType
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    nodes Node[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+}
+
 enum NodeType {
     INITIAL
     MANUAL_TRIGGER
@@ -112,6 +131,8 @@ model Node {
     data Json @default("{}")
     createdAt DateTime  @default(now())
     updatedAt DateTime  @updatedAt
+    credentialId String?
+    credential Credential? @relation(fields: [credentialId], references: [id], onDelete: SetNull)
     outputConnections Connection[] @relation("FromNode")
     inputConnections Connection[] @relation("ToNode")
 

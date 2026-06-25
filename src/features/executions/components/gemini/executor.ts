@@ -4,9 +4,11 @@ import Handlebars from "handlebars";
 import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { geminiTriggerChannel } from "@/inngest/channels/gemini-channel";
+import prisma from "@/lib/db";
 
 type GeminiRequestData = {
   variableName?: string;
+  credentialId?: string;
   systemPrompt?: string;
   userPrompt?: string;
 };
@@ -33,7 +35,12 @@ export const geminiRequestExecutor: NodeExecutor<GeminiRequestData> = async ({
     }),
   );
 
-  const { userPrompt: input, variableName, systemPrompt: prompt } = data;
+  const {
+    credentialId,
+    userPrompt: input,
+    variableName,
+    systemPrompt: prompt,
+  } = data;
 
   if (!input || typeof input !== "string") {
     await publish(
@@ -44,6 +51,18 @@ export const geminiRequestExecutor: NodeExecutor<GeminiRequestData> = async ({
     );
     throw new NonRetriableError(
       `Gemini node(${nodeId}): userPrompt not configured`,
+    );
+  }
+
+  if (!credentialId || typeof credentialId !== "string") {
+    await publish(
+      geminiTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(
+      `Gemini node(${nodeId}): credential not configured`,
     );
   }
   if (!variableName || typeof variableName !== "string") {
@@ -58,13 +77,30 @@ export const geminiRequestExecutor: NodeExecutor<GeminiRequestData> = async ({
     );
   }
 
+  const credential = await step.run("get-credential", async () => {
+    return prisma.credential.findUnique({
+      where: {
+        id: credentialId,
+      },
+    });
+  });
+
+  if (!credential) {
+    await publish(
+      geminiTriggerChannel().status({
+        nodeId,
+        status: "error",
+      }),
+    );
+    throw new NonRetriableError(`Gemini node(${nodeId}): credential not found`);
+  }
+
   const systemPrompt = prompt
     ? Handlebars.compile(prompt)(context)
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(input)(context);
-  const credential = process.env.GOOGLE_GENERATIVE_AI_API_KEY || "";
   const google = createGoogleGenerativeAI({
-    apiKey: credential,
+    apiKey: credential.value,
   });
 
   try {

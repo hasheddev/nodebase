@@ -38,6 +38,6 @@ export function useEntitySearch<T extends { search: string; page: number }>({ pa
 
     return {
         searchValue: localSearch,
-        onSearchChage: setLocalSearch
+        onSearchChange: setLocalSearch
     }
 }
