@@ -5,6 +5,7 @@ import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { openaiTriggerChannel } from "@/inngest/channels/openai-channel";
 import prisma from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
 
 type OpenAiRequestData = {
   variableName?: string;
@@ -102,7 +103,7 @@ export const openAiRequestExecutor: NodeExecutor<OpenAiRequestData> = async ({
   const userPrompt = Handlebars.compile(input)(context);
 
   const openai = createOpenAI({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   });
 
   try {

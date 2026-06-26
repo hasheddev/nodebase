@@ -5,6 +5,7 @@ import { NonRetriableError } from "inngest";
 import type { NodeExecutor } from "@/features/executions/types";
 import { anthropicTriggerChannel } from "@/inngest/channels/anthropic-channel";
 import prisma from "@/lib/db";
+import { decrypt } from "@/lib/encryption";
 
 type AnthropicRequestData = {
   variableName?: string;
@@ -98,7 +99,7 @@ export const anthropicRequestExecutor: NodeExecutor<
     : "You are a helpful assistant";
   const userPrompt = Handlebars.compile(input)(context);
   const anthropic = createAnthropic({
-    apiKey: credential.value,
+    apiKey: decrypt(credential.value),
   });
 
   try {
