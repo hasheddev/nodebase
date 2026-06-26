@@ -23,7 +23,7 @@ Handlebars.registerHelper("json", (context) => {
 
 export const anthropicRequestExecutor: NodeExecutor<
   AnthropicRequestData
-> = async ({ data, nodeId, context, step, publish }) => {
+> = async ({ data, nodeId, context, step, publish, userId }) => {
   await publish(
     anthropicTriggerChannel().status({
       nodeId,
@@ -76,6 +76,7 @@ export const anthropicRequestExecutor: NodeExecutor<
     return prisma.credential.findUnique({
       where: {
         id: credentialId,
+        userId,
       },
     });
   });

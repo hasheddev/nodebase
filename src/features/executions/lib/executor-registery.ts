@@ -3,9 +3,11 @@ import { manualTriggerExecutor } from "@/features/triggers/components/manual-tri
 import { stripeTriggerExecutor } from "@/features/triggers/components/stripe-trigger/executor";
 import { NodeType } from "@/generated/prisma";
 import { anthropicRequestExecutor } from "../components/anthropic/executor";
+import { discordRequestExecutor } from "../components/discord/executor";
 import { geminiRequestExecutor } from "../components/gemini/executor";
 import { httpRequestExecutor } from "../components/http-request/executor";
 import { openAiRequestExecutor } from "../components/openai/executor";
+import { slackRequestExecutor } from "../components/slack/executor";
 import type { NodeExecutor } from "../types";
 
 type InitialData = Record<string, unknown>;
@@ -27,6 +29,8 @@ export const executorRegistery: Record<NodeType, NodeExecutor<any>> = {
   [NodeType.GEMINI]: geminiRequestExecutor,
   [NodeType.ANTHROPIC]: anthropicRequestExecutor,
   [NodeType.OPENAI]: openAiRequestExecutor,
+  [NodeType.DISCORD]: discordRequestExecutor,
+  [NodeType.SLACK]: slackRequestExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {
