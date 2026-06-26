@@ -45,6 +45,32 @@ export function LoginForm() {
         },
     });
 
+    const signInGithub = async () => {
+        await authClient.signIn.social({
+            provider: "github"
+        }, {
+            onSuccess: () => {
+                router.replace("/");
+            },
+            onError: () => {
+                toast.error("Github signin failed!")
+            }
+        })
+    }
+
+    const signInGoogle = async () => {
+        await authClient.signIn.social({
+            provider: "google"
+        }, {
+            onSuccess: () => {
+                router.replace("/");
+            },
+            onError: () => {
+                toast.error("Google signin failed!")
+            }
+        })
+    }
+
     async function onSubmit(values: LoginFormValues) {
         await authClient.signIn.email(
             {
@@ -54,11 +80,11 @@ export function LoginForm() {
             },
             {
                 onSuccess: () => {
-                    toast.success("Welcome back!", { duration: 3000 });
+                    toast.success("Welcome back!", { duration: 2000 });
                     router.replace("/");
                 },
                 onError: (ctx) => {
-                    toast.error(ctx.error.message, { duration: 3000 });
+                    toast.error(ctx.error.message, { duration: 2000 });
                 },
             },
         );
@@ -81,6 +107,7 @@ export function LoginForm() {
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={signInGithub}
                                 >
                                     <Image
                                         src="/logos/github.svg"
@@ -95,6 +122,7 @@ export function LoginForm() {
                                     className="w-full"
                                     type="button"
                                     disabled={isPending}
+                                    onClick={signInGoogle}
                                 >
                                     <Image
                                         src="/logos/google.svg"
